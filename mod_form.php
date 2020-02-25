@@ -28,17 +28,71 @@ class mod_evaluationforum_mod_form extends moodleform_mod {
         global $CFG, $DB, $OUTPUT;
  
         $mform =& $this->_form;
- 
+        
+        // ----------------------------Activity name and description ------------------------------------//
         $mform->addElement('text', 'name', get_string('activityname', 'evaluationforum'), array('size'=>'64'));
         $mform->setType('name', PARAM_TEXT);
         $mform->addRule('name', null, 'required', null, 'client');
+
+        if (!empty($CFG->formatstringstriptags)) {
+            $mform->setType('name', PARAM_TEXT);
+        } else {
+            $mform->setType('name', PARAM_CLEANHTML);
+        }
  
-        $ynoptions = array(0 => get_string('no'),
-                           1 => get_string('yes'));
-        $mform->addElement('select', 'usecode', get_string('usecode', 'certificate'), $ynoptions);
-        $mform->setDefault('usecode', 0);
-        $mform->addHelpButton('usecode', 'usecode', 'certificate');
- 
+        $mform->addRule('name', null, 'required', null, 'client');
+        $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
+        
+        $this->standard_intro_elements(get_string('forumintro', 'evaluationforum')); //Review this line again
+
+        
+        //----------------Availability ----------------------------------------------------//
+
+        $mform->addElement('header', 'availability', get_string('availability', 'forum'));
+
+        $name = get_string('duedate', 'forum');
+        $mform->addElement('date_time_selector', 'duedate', $name, array('optional' => true));
+        $mform->addHelpButton('duedate', 'duedate', 'forum');
+
+        $name = get_string('cutoffdate', 'forum');
+        $mform->addElement('date_time_selector', 'cutoffdate', $name, array('optional' => true));
+        $mform->addHelpButton('cutoffdate', 'cutoffdate', 'forum');
+
+        // Attachments and word count.
+        $mform->addElement('header', 'attachmentswordcounthdr', get_string('attachmentswordcount', 'forum'));
+
+        $choices = get_max_upload_sizes($CFG->maxbytes, $COURSE->maxbytes, 0, $CFG->forum_maxbytes);
+        $choices[1] = get_string('uploadnotallowed');
+        $mform->addElement('select', 'maxbytes', get_string('maxattachmentsize', 'forum'), $choices);
+        $mform->addHelpButton('maxbytes', 'maxattachmentsize', 'forum');
+        $mform->setDefault('maxbytes', $CFG->forum_maxbytes);
+
+        $choices = array(
+            0 => 0,
+            1 => 1,
+            2 => 2,
+            3 => 3,
+            4 => 4,
+            5 => 5,
+            6 => 6,
+            7 => 7,
+            8 => 8,
+            9 => 9,
+            10 => 10,
+            20 => 20,
+            50 => 50,
+            100 => 100
+        );
+        $mform->addElement('select', 'maxattachments', get_string('maxattachments', 'forum'), $choices);
+        $mform->addHelpButton('maxattachments', 'maxattachments', 'forum');
+        $mform->setDefault('maxattachments', $CFG->forum_maxattachments);
+
+        $mform->addElement('selectyesno', 'displaywordcount', get_string('displaywordcount', 'forum'));
+        $mform->addHelpButton('displaywordcount', 'displaywordcount', 'forum');
+        $mform->setDefault('displaywordcount', 0);
+        
+        
+    
         $this->standard_coursemodule_elements();
  
         $this->add_action_buttons();
