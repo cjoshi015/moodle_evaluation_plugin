@@ -24,7 +24,6 @@ defined('MOODLE_INTERNAL') || die();
 
 
 
-
 function evaluationforum_add_instance($certificate){
 
 };
